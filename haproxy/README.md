@@ -7,12 +7,12 @@ HAProxy is a TCP proxy and a HTTP reverse proxy. It supports SSL termination and
 [Overview of HAProxy](http://www.haproxy.org/)
 
 Trademarks: This software listing is packaged by Bitnami. The respective trademarks mentioned in the offering are owned by the respective companies, and use of them does not imply any affiliation or endorsement.
-                           
+
 ## TL;DR
 
 ```console
-$ helm repo add bitnami https://charts.bitnami.com/bitnami
-$ helm install my-release bitnami/haproxy
+$ helm repo add my-repo https://charts.bitnami.com/bitnami
+$ helm install my-release my-repo/haproxy
 ```
 
 ## Introduction
@@ -35,7 +35,7 @@ Bitnami charts can be used with [Kubeapps](https://kubeapps.dev/) for deployment
 To install the chart with the release name `my-release`:
 
 ```console
-helm install my-release bitnami/haproxy
+helm install my-release my-repo/haproxy
 ```
 
 The command deploys haproxy on the Kubernetes cluster in the default configuration. The [Parameters](#parameters) section lists the parameters that can be configured during installation.
@@ -81,18 +81,32 @@ The command removes all the Kubernetes components associated with the chart and 
 
 ### Traffic Exposure Parameters
 
-| Name                               | Description                                                          | Value          |
-| ---------------------------------- | -------------------------------------------------------------------- | -------------- |
-| `service.type`                     | haproxy service type                                                 | `LoadBalancer` |
-| `service.ports`                    | List of haproxy service ports                                        | `[]`           |
-| `service.clusterIP`                | haproxy service Cluster IP                                           | `""`           |
-| `service.loadBalancerIP`           | haproxy service Load Balancer IP                                     | `""`           |
-| `service.loadBalancerSourceRanges` | haproxy service Load Balancer sources                                | `[]`           |
-| `service.externalTrafficPolicy`    | haproxy service external traffic policy                              | `Cluster`      |
-| `service.annotations`              | Additional custom annotations for haproxy service                    | `{}`           |
-| `service.sessionAffinity`          | Session Affinity for Kubernetes service, can be "None" or "ClientIP" | `None`         |
-| `service.sessionAffinityConfig`    | Additional settings for the sessionAffinity                          | `{}`           |
-| `service.labels`                   | Additional custom labels for haproxy service                         | `{}`           |
+| Name                               | Description                                                                                                                      | Value                    |
+| ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | ------------------------ |
+| `service.type`                     | haproxy service type                                                                                                             | `LoadBalancer`           |
+| `service.ports`                    | List of haproxy service ports                                                                                                    | `[]`                     |
+| `service.clusterIP`                | haproxy service Cluster IP                                                                                                       | `""`                     |
+| `service.loadBalancerIP`           | haproxy service Load Balancer IP                                                                                                 | `""`                     |
+| `service.loadBalancerSourceRanges` | haproxy service Load Balancer sources                                                                                            | `[]`                     |
+| `service.externalTrafficPolicy`    | haproxy service external traffic policy                                                                                          | `Cluster`                |
+| `service.annotations`              | Additional custom annotations for haproxy service                                                                                | `{}`                     |
+| `service.sessionAffinity`          | Session Affinity for Kubernetes service, can be "None" or "ClientIP"                                                             | `None`                   |
+| `service.sessionAffinityConfig`    | Additional settings for the sessionAffinity                                                                                      | `{}`                     |
+| `service.labels`                   | Additional custom labels for haproxy service                                                                                     | `{}`                     |
+| `ingress.enabled`                  | Enable ingress record generation for haproxy                                                                                     | `false`                  |
+| `ingress.pathType`                 | Ingress path type                                                                                                                | `ImplementationSpecific` |
+| `ingress.apiVersion`               | Force Ingress API version (automatically detected if not set)                                                                    | `""`                     |
+| `ingress.hostname`                 | Default host for the ingress record                                                                                              | `haproxy.local`          |
+| `ingress.path`                     | Default path for the ingress record                                                                                              | `/`                      |
+| `ingress.annotations`              | Additional annotations for the Ingress resource. To enable certificate autogeneration, place here your cert-manager annotations. | `{}`                     |
+| `ingress.tls`                      | Enable TLS configuration for the host defined at `ingress.hostname` parameter                                                    | `false`                  |
+| `ingress.selfSigned`               | Create a TLS secret for this ingress record using self-signed certificates generated by Helm                                     | `false`                  |
+| `ingress.extraHosts`               | An array with additional hostname(s) to be covered with the ingress record                                                       | `[]`                     |
+| `ingress.extraPaths`               | An array with additional arbitrary paths that may need to be added to the ingress under the main host                            | `[]`                     |
+| `ingress.extraTls`                 | TLS configuration for additional hostname(s) to be covered with this ingress record                                              | `[]`                     |
+| `ingress.secrets`                  | Custom TLS certificates as secrets                                                                                               | `[]`                     |
+| `ingress.ingressClassName`         | IngressClass that will be be used to implement the Ingress (Kubernetes 1.18+)                                                    | `""`                     |
+| `ingress.extraRules`               | Additional rules to be covered with this ingress record                                                                          | `[]`                     |
 
 
 ### HAProxy Parameters
@@ -191,7 +205,7 @@ Specify each parameter using the `--set key=value[,key=value]` argument to `helm
 ```console
 helm install my-release \
   --set service.type=LoadBalancer \
-    bitnami/haproxy
+    my-repo/haproxy
 ```
 
 The above command sets the HAProxy service type as LoadBalancer.
@@ -201,7 +215,7 @@ The above command sets the HAProxy service type as LoadBalancer.
 Alternatively, a YAML file that specifies the values for the above parameters can be provided while installing the chart. For example,
 
 ```console
-helm install my-release -f values.yaml bitnami/haproxy
+helm install my-release -f values.yaml my-repo/haproxy
 ```
 
 > **Tip**: You can use the default [values.yaml](values.yaml)
@@ -245,7 +259,7 @@ Refer to the chart documentation for more information on, and examples of, confi
 
 This chart allows you to set custom Pod affinity using the `affinity` parameter. Find more information about Pod affinity in the [Kubernetes documentation](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity).
 
-As an alternative, use one of the preset configurations for pod affinity, pod anti-affinity, and node affinity available at the [bitnami/common](https://github.com/bitnami/charts/tree/master/bitnami/common#affinities) chart. To do so, set the `podAffinityPreset`, `podAntiAffinityPreset`, or `nodeAffinityPreset` parameters.
+As an alternative, use one of the preset configurations for pod affinity, pod anti-affinity, and node affinity available at the [bitnami/common](https://github.com/bitnami/charts/tree/main/bitnami/common#affinities) chart. To do so, set the `podAffinityPreset`, `podAntiAffinityPreset`, or `nodeAffinityPreset` parameters.
 
 ## Troubleshooting
 
